@@ -1,12 +1,12 @@
 [project]
 name = "python-base"
 version = "0.1.0"
-description = "Add your description here"
+description = "Base python project"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "pre-commit>=4.2.0",
-    "pyright>=1.1.400",
+    "ty>=0.0.0",
     "ruff>=0.11.10",
 ]
 
@@ -34,5 +34,5 @@ convention = "numpy"
 dev = [
     "ruff>=0.11.10",
     "pre-commit>=4.2.0",
-    "pyright>=1.1.400",
+    "ty>=0.0.0",
 ]
