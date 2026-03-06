@@ -28,10 +28,10 @@ This will create a virtual environment and install needed development dependenci
 
 ## Pre-commit hooks
 
-Install the pre-commit hooks (`pre-commit` has been installed by `uv`)
+Install the pre-commit hooks:
 
 ```sh
-uv run pre-commit install
+uvx pre-commit install
 ```
 
 This will create a `.git/hooks/pre-commit` file that will run the pre-commit
