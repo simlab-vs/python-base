@@ -18,14 +18,23 @@ repos:
         args:
           - --fix
 
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.8
+  - repo: local
     hooks:
       - id: ruff
-        args: [ --fix ]
+        name: ruff
+        entry: uvx ruff check --fix
+        language: system
+        types: [python]
+        pass_filenames: true
       - id: ruff-format
-
-  - repo: https://github.com/allganize/ty-pre-commit
-    rev: v0.0.19
-    hooks:
-      - id: ty-check
+        name: ruff-format
+        entry: uvx ruff format
+        language: system
+        types: [python]
+        pass_filenames: true
+      - id: ty
+        name: ty
+        entry: uvx ty check
+        language: system
+        types: [python]
+        pass_filenames: false
