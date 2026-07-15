@@ -1,0 +1,48 @@
+# CI template: runs the pre-commit hooks and the test suite on every push.
+#
+# The Python version below should match the one in containers/apptainer.def;
+# change it in both places when the project moves on.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A new push to a branch cancels any run still in progress for it.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  # Runs every hook in .pre-commit-config.yaml (mdformat, ruff, ty, ...) over
+  # the whole repo, not just the changed files.
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v8
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          enable-cache: true
+      - uses: actions/cache@v6
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
+      - run: uvx pre-commit run --all-files --show-diff-on-failure
+
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v8
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          enable-cache: true
+      # --frozen fails if uv.lock is out of date with pyproject.toml.
+      - run: uv sync --frozen
+      - run: uv run pytest

@@ -1,0 +1,58 @@
+# Minimal apptainer definition file for a Python project based on uv.
+#
+# Build with the defaults below, or override them:
+#
+#   apptainer build project.sif apptainer.def
+#   apptainer build --build-arg PROJECT_NAME=my-project \
+#                   --build-arg PYTHON_VERSION=3.13 \
+#                   project.sif apptainer.def
+#
+# The project root (the parent of this folder) is copied to /opt/$PROJECT_NAME,
+# and /mnt/$PROJECT_NAME is the working directory at runtime (bind your data
+# there with `apptainer run --bind /path/to/workdir:/mnt/$PROJECT_NAME ...`).
+#
+# Running the container with no arguments runs ENTRYPOINT; define what the
+# project should do there. Any command passed to `apptainer run` overrides it:
+#
+#   apptainer run project.sif                        # runs ENTRYPOINT
+#   apptainer run project.sif python -m python_base.hello
+
+Bootstrap: docker
+From: ghcr.io/astral-sh/uv:python{{ PYTHON_VERSION }}-bookworm-slim
+
+%arguments
+    PROJECT_NAME=python-base
+    PYTHON_VERSION=3.12
+    MAINTAINER=unknown
+    VERSION=0.1
+    ENTRYPOINT=containers/entrypoint.sh
+
+%labels
+    Maintainer "{{ MAINTAINER }}"
+    Version "{{ VERSION }}"
+
+%files
+    ../ /opt/{{ PROJECT_NAME }}
+
+%post
+    echo "**** Installing system dependencies ****"
+    apt-get update && apt-get install -y git curl && apt-get clean
+
+    echo "**** Installing Python dependencies ****"
+    cd /opt/{{ PROJECT_NAME }}
+    uv venv --python {{ PYTHON_VERSION }}
+    uv sync
+
+    chmod +x /opt/{{ PROJECT_NAME }}/{{ ENTRYPOINT }}
+    mkdir -p /mnt/{{ PROJECT_NAME }}
+
+%environment
+    export VIRTUAL_ENV="/opt/{{ PROJECT_NAME }}/.venv"
+    export PATH="$VIRTUAL_ENV/bin:$PATH"
+
+%runscript
+    cd /mnt/{{ PROJECT_NAME }}
+    if [ $# -eq 0 ]; then
+        exec /opt/{{ PROJECT_NAME }}/{{ ENTRYPOINT }}
+    fi
+    exec "$@"

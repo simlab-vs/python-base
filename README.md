@@ -1,59 +1,85 @@
-# Project template
+# {Project name}
 
-This template should be used for every Python project in the lab. It uses:
+> One or two sentences on what this project does and why it exists.
 
-- [`uv`](https://docs.astral.sh/uv/) for dependency management.
-- [`ruff`](https://docs.astral.sh/ruff/) for code formatting.
-- [`ty`](https://docs.astral.sh/ty/) for type checking.
-- [`pre-commit`](https://pre-commit.com/) hooks for automated validation.
+## Status
 
-## Dependency management
+{Early exploration | Active development | Stable | Archived}. {Anything a newcomer should know
+before relying on this: what works, what doesn't.}
 
-We use [`uv`](https://docs.astral.sh/uv/) for dependency management. It is just as
-full-featured as `poetry`, but _much faster_. Follow the instructions below to
-create a new project:
+## Getting started
 
-1. Update the name of the project in `pyproject.toml`.
-2. Change the name of the folder `src/python-base` to match the project name.
-3. Run `uv sync` from the root of the repo.
-This will create a virtual environment and install needed development dependencies.
-4. Add the dependencies you need (and run this same command every time you need
-   a new package):
-
-   ```sh
-   uv add polars lightgbm
-   ```
-
-5. Take a look at the `uv`'s [Getting started guide](https://docs.astral.sh/uv/getting-started/).
-
-## Pre-commit hooks
-
-Install the pre-commit hooks:
+Requires Python >=3.12 and [`uv`](https://docs.astral.sh/uv/).
 
 ```sh
-uvx pre-commit install
+uv sync                 # create the virtualenv and install dependencies
+uvx pre-commit install  # install the pre-commit hooks
 ```
 
-This will create a `.git/hooks/pre-commit` file that will run the pre-commit
-hooks every time you commit. Upon the first commit, the hooks will be installed.
-
-Some hooks output error message that require a manual change (e.g., linting
-errors). Other hooks perform automated fixes. Either way, you need to re-run
-the commit command:
+Check the install works:
 
 ```sh
-git commit -m "My message"
+uv run python -m {package_name}.hello
 ```
 
-### Code formatting
+## Usage
 
-Among the pre-commit hooks, you will find one that runs
-[`ruff`](https://docs.astral.sh/ruff/) on every Python file. It is also warmly
-recommended that you set up `ruff` in your IDE (e.g., Visual Studio Code, PyCharm).
+{The shortest command that produces something useful, and the output it prints. Add one example per
+entry point.}
 
-### Typing
+```sh
+uv run python -m {package_name}.{entry_point} --help
+```
 
-We recommend the use of [type hints](https://docs.python.org/3/library/typing.html)
-of your code. One of the pre-commit hooks is [`ty`](https://docs.astral.sh/ty/),
-which will perform type checking when hints are available. This reduces greatly the
-risk of bugs and the maintainability of the code.
+## Layout
+
+| Path                       | Contents                                          |
+| -------------------------- | ------------------------------------------------- |
+| `src/{package_name}/`      | Library code, importable as `{package_name}`.     |
+| `src/{package_name}/data/` | `config.yaml` — data paths and project settings.  |
+| `tests/`                   | Test suite, run with `uv run pytest`.             |
+| `containers/`              | Apptainer definition and entrypoint.              |
+| {scripts, notebooks, …}    | {Fill in the folders this project actually adds.} |
+
+Data paths live in `config.yaml` and are read through `config.py` — never hardcode them in scripts.
+
+## Data
+
+{Where the inputs come from, where they live on the lab storage, and how to get them. Say if
+anything is restricted or must not be committed.}
+
+## Results
+
+`LOGBOOK.md` records each iteration in antichronological order (hypothesis, method, key results,
+next steps). `RESULTS.md` compiles the comparable results across iterations, and is the place to
+look first.
+
+{Link the reports here as they are produced.}
+
+## Containers
+
+Build and run the Apptainer image, binding your working directory:
+
+```sh
+apptainer build --build-arg PROJECT_NAME={project-name} project.sif containers/apptainer.def
+apptainer run --bind /path/to/workdir:/mnt/{project-name} project.sif
+```
+
+See the header of `containers/apptainer.def` for the available build arguments.
+
+## Development
+
+`GUIDELINES.md` covers the lab-wide toolchain (`uv`, `ruff`, `ty`, `pre-commit`); `AGENTS.md` covers
+the coding style and research workflow, and is what coding agents read. Both apply to this project —
+document only the deviations here.
+
+```sh
+uv run pytest              # run the tests
+uvx pre-commit run --all-files  # run every hook, as CI does
+```
+
+`.github/workflows/ci.yml` runs those same two checks on every push.
+
+## Contact
+
+{Maintainer name and how to reach them.}
